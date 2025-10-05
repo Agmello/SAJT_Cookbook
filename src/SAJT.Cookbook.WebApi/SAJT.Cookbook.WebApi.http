@@ -1,0 +1,6 @@
+@SAJT.Cookbook.WebApi_HostAddress = http://localhost:5149
+
+GET {{SAJT.Cookbook.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
