@@ -1,3 +1,4 @@
+using Microsoft.OpenApi.Models;
 using SAJT.Cookbook.Application;
 using SAJT.Cookbook.Infrastructure;
 
@@ -7,13 +8,25 @@ builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();
-builder.Services.AddOpenApi();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Title = "SAJT Cookbook API",
+        Version = "v1"
+    });
+});
 
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "SAJT Cookbook API v1");
+    });
 }
 
 app.UseHttpsRedirection();
