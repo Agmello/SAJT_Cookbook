@@ -11,11 +11,13 @@ namespace SAJT.Cookbook.Application.Recipes.Commands.CreateRecipe;
 public sealed class CreateRecipeCommandHandler : IRequestHandler<CreateRecipeCommand, CreateRecipeResult>
 {
     private readonly IRecipeRepository _recipeRepository;
+    private readonly IUserRepository _userRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateRecipeCommandHandler(IRecipeRepository recipeRepository, IUnitOfWork unitOfWork)
+    public CreateRecipeCommandHandler(IRecipeRepository recipeRepository, IUserRepository userRepository, IUnitOfWork unitOfWork)
     {
         _recipeRepository = recipeRepository;
+        _userRepository = userRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -39,6 +41,12 @@ public sealed class CreateRecipeCommandHandler : IRequestHandler<CreateRecipeCom
         if (request.PrepTimeMinutes < 0 || request.CookTimeMinutes < 0)
         {
             return CreateRecipeResult.InvalidTiming();
+        }
+
+        var author = await _userRepository.GetByIdAsync(request.AuthorId, cancellationToken);
+        if (author is null)
+        {
+            return CreateRecipeResult.InvalidAuthor();
         }
 
         var slug = GenerateSlug(request.Title);

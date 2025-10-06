@@ -2,6 +2,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SAJT.Cookbook.Application.Recipes.Commands.CreateRecipe;
+using SAJT.Cookbook.Domain.Entities;
 using SAJT.Cookbook.Domain.Enums;
 using SAJT.Cookbook.Infrastructure.Persistence;
 using SAJT.Cookbook.Infrastructure.Repositories;
@@ -21,11 +22,17 @@ public sealed class CreateRecipeCommandHandlerTests
         await using var context = new CookbookDbContext(options);
 
         var repository = new RecipeRepository(context);
+        var userRepository = new UserRepository(context);
         var unitOfWork = new UnitOfWork(context);
-        var handler = new CreateRecipeCommandHandler(repository, unitOfWork);
+
+        var author = User.Create("Integration Tester");
+        context.Users.Add(author);
+        await context.SaveChangesAsync();
+
+        var handler = new CreateRecipeCommandHandler(repository, userRepository, unitOfWork);
 
         var command = new CreateRecipeCommand(
-            Guid.NewGuid(),
+            author.Id,
             "Pasta Primavera",
             "Fresh vegetables with pasta",
             15,

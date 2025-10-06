@@ -271,3 +271,4 @@ public sealed class Recipe
         UpdatedAtUtc = DateTime.UtcNow;
     }
 }
+

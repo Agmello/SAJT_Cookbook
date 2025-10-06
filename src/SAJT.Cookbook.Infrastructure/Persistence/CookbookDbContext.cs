@@ -20,6 +20,8 @@ public class CookbookDbContext : DbContext
 
     public DbSet<Tag> Tags => Set<Tag>();
 
+    public DbSet<User> Users => Set<User>();
+
     public DbSet<RecipeTag> RecipeTags => Set<RecipeTag>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

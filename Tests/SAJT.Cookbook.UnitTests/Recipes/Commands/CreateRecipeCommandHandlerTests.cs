@@ -14,12 +14,17 @@ namespace SAJT.Cookbook.UnitTests.Recipes.Commands;
 public sealed class CreateRecipeCommandHandlerTests
 {
     private readonly Mock<IRecipeRepository> _recipeRepositoryMock = new();
+    private readonly Mock<IUserRepository> _userRepositoryMock = new();
     private readonly Mock<IUnitOfWork> _unitOfWorkMock = new();
     private readonly CreateRecipeCommandHandler _handler;
 
     public CreateRecipeCommandHandlerTests()
     {
-        _handler = new CreateRecipeCommandHandler(_recipeRepositoryMock.Object, _unitOfWorkMock.Object);
+        _userRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((Guid id, CancellationToken _) => CreateUser(id));
+
+        _handler = new CreateRecipeCommandHandler(_recipeRepositoryMock.Object, _userRepositoryMock.Object, _unitOfWorkMock.Object);
     }
 
     [Fact]
@@ -34,9 +39,26 @@ public sealed class CreateRecipeCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_ReturnsInvalidAuthor_WhenUserNotFound()
+    {
+        var authorId = Guid.NewGuid();
+        var command = new CreateRecipeCommand(authorId, "Title", null, 10, 20, 2, RecipeDifficulty.Easy, false);
+
+        _userRepositoryMock
+            .Setup(repo => repo.GetByIdAsync(authorId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((User?)null);
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Equal(CreateRecipeStatus.InvalidAuthor, result.Status);
+        _recipeRepositoryMock.Verify(repo => repo.Add(It.IsAny<Recipe>()), Times.Never);
+    }
+
+    [Fact]
     public async Task Handle_ReturnsInvalidTitle_WhenTitleMissing()
     {
-        var command = new CreateRecipeCommand(Guid.NewGuid(), "  ", null, 10, 20, 2, RecipeDifficulty.Easy, false);
+        var authorId = Guid.NewGuid();
+        var command = new CreateRecipeCommand(authorId, "  ", null, 10, 20, 2, RecipeDifficulty.Easy, false);
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -47,7 +69,8 @@ public sealed class CreateRecipeCommandHandlerTests
     [Fact]
     public async Task Handle_ReturnsInvalidServings_WhenServingsIsZero()
     {
-        var command = new CreateRecipeCommand(Guid.NewGuid(), "Test", null, 10, 20, 0, RecipeDifficulty.Easy, false);
+        var authorId = Guid.NewGuid();
+        var command = new CreateRecipeCommand(authorId, "Test", null, 10, 20, 0, RecipeDifficulty.Easy, false);
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -58,7 +81,8 @@ public sealed class CreateRecipeCommandHandlerTests
     [Fact]
     public async Task Handle_ReturnsInvalidTiming_WhenTimingsNegative()
     {
-        var command = new CreateRecipeCommand(Guid.NewGuid(), "Test", null, -1, 10, 2, RecipeDifficulty.Easy, false);
+        var authorId = Guid.NewGuid();
+        var command = new CreateRecipeCommand(authorId, "Test", null, -1, 10, 2, RecipeDifficulty.Easy, false);
 
         var result = await _handler.Handle(command, CancellationToken.None);
 
@@ -91,5 +115,12 @@ public sealed class CreateRecipeCommandHandlerTests
 
         _recipeRepositoryMock.Verify(repo => repo.Add(It.IsAny<Recipe>()), Times.Once);
         _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private static User CreateUser(Guid id)
+    {
+        var user = User.Create("Test User");
+        typeof(User).GetProperty(nameof(User.Id))!.SetValue(user, id);
+        return user;
     }
 }
