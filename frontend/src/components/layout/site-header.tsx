@@ -1,5 +1,6 @@
 'use client';
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { cn } from "@/lib/utils";
 
@@ -31,9 +32,13 @@ export function SiteHeader() {
           ))}
         </nav>
         <div className="flex items-center gap-2">
+          <Button asChild size="sm" variant="default">
+            <Link href="/dashboard/recipes/new">Add recipe</Link>
+          </Button>
           <ThemeToggle />
         </div>
       </div>
     </header>
   );
 }
+

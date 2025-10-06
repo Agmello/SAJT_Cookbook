@@ -1,10 +1,11 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SAJT.Cookbook.Application.Recipes.Commands.AddTagToRecipe;
+using SAJT.Cookbook.Application.Recipes.Commands.CreateRecipe;
 using SAJT.Cookbook.Application.Recipes.Commands.RemoveTagFromRecipe;
 using SAJT.Cookbook.Application.Recipes.Models;
 using SAJT.Cookbook.Application.Recipes.Queries.GetRecipes;
@@ -30,6 +31,39 @@ public class RecipesController : ControllerBase
         var recipes = await _mediator.Send(new GetRecipesQuery(), cancellationToken);
 
         return Ok(recipes);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(typeof(RecipeSummaryDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> CreateAsync([FromBody] CreateRecipeRequest request, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        var command = new CreateRecipeCommand(
+            request.AuthorId,
+            request.Title,
+            request.Description,
+            request.PrepTimeMinutes,
+            request.CookTimeMinutes,
+            request.Servings,
+            request.Difficulty,
+            request.IsPublished);
+
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Status switch
+        {
+            CreateRecipeStatus.Success => Created($"/api/recipes/{result.Recipe!.Id}", result.Recipe),
+            CreateRecipeStatus.InvalidAuthor => BadRequest("Invalid author identifier."),
+            CreateRecipeStatus.InvalidTitle => BadRequest("Title is required."),
+            CreateRecipeStatus.InvalidServings => BadRequest("Servings must be at least one."),
+            CreateRecipeStatus.InvalidTiming => BadRequest("Preparation and cook times must be non-negative."),
+            _ => Problem()
+        };
     }
 
     [HttpPost("{recipeId:long}/tags")]
@@ -73,3 +107,4 @@ public class RecipesController : ControllerBase
         };
     }
 }
+
