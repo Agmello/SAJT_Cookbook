@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
+import { useUserSession } from "@/components/providers/user-session-provider";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -22,7 +23,6 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useCreateRecipeMutation } from "@/features/recipes/api/use-create-recipe-mutation";
 import type { RecipeDifficulty } from "@/features/recipes/types";
-import { environment } from "@/lib/env";
 
 const difficulties: RecipeDifficulty[] = ["Unknown", "Easy", "Medium", "Hard"];
 
@@ -56,13 +56,14 @@ const formSchema = z.object({
 
 export function CreateRecipeForm() {
   const router = useRouter();
+  const { user: activeUser } = useUserSession();
   const { mutateAsync, isPending } = useCreateRecipeMutation();
   const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      authorId: environment.defaultAuthorId,
+      authorId: "",
       title: "",
       description: "",
       prepTimeMinutes: 0,
@@ -73,8 +74,14 @@ export function CreateRecipeForm() {
     },
   });
 
+  useEffect(() => {
+    if (activeUser) {
+      form.setValue("authorId", activeUser.id, { shouldValidate: true });
+    }
+  }, [activeUser, form]);
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-      setSubmissionError(null);
+    setSubmissionError(null);
     try {
       await mutateAsync({
         authorId: values.authorId.trim(),
@@ -102,11 +109,16 @@ export function CreateRecipeForm() {
             name="authorId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Author Id</FormLabel>
+                <FormLabel>Author</FormLabel>
                 <FormControl>
-                  <Input placeholder="00000000-0000-0000-0000-000000000000" {...field} />
+                  <div className="space-y-2">
+                    <input type="hidden" {...field} value={activeUser?.id ?? ""} />
+                    <div className="rounded-md border bg-muted px-3 py-2 text-sm font-medium text-foreground">
+                      {activeUser?.name ?? "Select a user to continue"}
+                    </div>
+                  </div>
                 </FormControl>
-                <FormDescription>Temporary field until authentication is in place.</FormDescription>
+                <FormDescription>The recipe will be associated with your selected user.</FormDescription>
                 <FormMessage />
               </FormItem>
             )}
@@ -230,13 +242,3 @@ export function CreateRecipeForm() {
     </Form>
   );
 }
-
-
-
-
-
-
-
-
-
-
