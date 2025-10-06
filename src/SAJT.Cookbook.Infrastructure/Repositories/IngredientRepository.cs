@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -21,6 +23,14 @@ public class IngredientRepository : IIngredientRepository
         return await _dbContext.Ingredients.FirstOrDefaultAsync(ingredient => ingredient.Id == id, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<Ingredient>> ListAsync(CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Ingredients
+            .AsNoTracking()
+            .OrderBy(ingredient => ingredient.Name)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> IsNameTakenAsync(string name, long excludeId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Ingredients
@@ -32,3 +42,4 @@ public class IngredientRepository : IIngredientRepository
         _dbContext.Ingredients.Update(ingredient);
     }
 }
+

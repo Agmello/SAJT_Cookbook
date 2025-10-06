@@ -1,9 +1,11 @@
-﻿using System.Threading;
+using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SAJT.Cookbook.Application.Ingredients.Commands.RenameIngredient;
+using SAJT.Cookbook.Application.Ingredients.Queries.GetIngredients;
 using SAJT.Cookbook.WebApi.Requests.Ingredients;
 
 namespace SAJT.Cookbook.WebApi.Controllers;
@@ -17,6 +19,14 @@ public class IngredientsController : ControllerBase
     public IngredientsController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpGet]
+    [ProducesResponseType(typeof(IReadOnlyList<IngredientSummaryDto>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IReadOnlyList<IngredientSummaryDto>>> GetAsync(CancellationToken cancellationToken)
+    {
+        var ingredients = await _mediator.Send(new GetIngredientsQuery(), cancellationToken);
+        return Ok(ingredients);
     }
 
     [HttpPut("{ingredientId:long}/name")]

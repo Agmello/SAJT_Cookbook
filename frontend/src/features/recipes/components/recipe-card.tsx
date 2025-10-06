@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -61,11 +62,21 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
       </CardContent>
       <CardFooter className="flex items-center justify-between text-sm text-muted-foreground">
         <span>Updated {updatedAtLabel}</span>
-        <span className="font-medium text-primary">View recipe -&gt;</span>
+        <div className="flex items-center gap-3">
+          <Link
+            href={`/dashboard/recipes/${recipe.id}/ingredients`}
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            Add ingredient
+          </Link>
+        </div>
       </CardFooter>
     </Card>
   );
 }
+
+
+
 
 
 

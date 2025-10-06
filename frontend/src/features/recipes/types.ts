@@ -1,3 +1,20 @@
+export type MeasurementUnit =
+  | "Unitless"
+  | "Gram"
+  | "Milliliter"
+  | "Tablespoon"
+  | "Teaspoon"
+  | "Cup"
+  | "Piece";
+
+export interface RecipeIngredientSummary {
+  id: number;
+  ingredientId: number;
+  ingredientName: string;
+  amount: number;
+  unit: MeasurementUnit;
+  note?: string | null;
+}
 export type RecipeDifficulty = "Unknown" | "Easy" | "Medium" | "Hard";
 
 export interface RecipeSummary {
@@ -11,3 +28,4 @@ export interface RecipeSummary {
   isPublished: boolean;
   updatedAtUtc: string;
 }
+

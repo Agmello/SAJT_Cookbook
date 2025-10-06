@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using MediatR;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SAJT.Cookbook.Application.Recipes.Commands.AddIngredientToRecipe;
 using SAJT.Cookbook.Application.Recipes.Commands.AddTagToRecipe;
 using SAJT.Cookbook.Application.Recipes.Commands.CreateRecipe;
 using SAJT.Cookbook.Application.Recipes.Commands.RemoveTagFromRecipe;
@@ -66,6 +67,31 @@ public class RecipesController : ControllerBase
         };
     }
 
+    [HttpPost("{recipeId:long}/ingredients")]
+    [ProducesResponseType(typeof(RecipeIngredientDto), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> AddIngredientAsync(long recipeId, [FromBody] AddRecipeIngredientRequest request, CancellationToken cancellationToken)
+    {
+        if (request is null)
+        {
+            return BadRequest();
+        }
+
+        var command = new AddIngredientToRecipeCommand(recipeId, request.IngredientId, request.Amount, request.Unit, request.Note);
+        var result = await _mediator.Send(command, cancellationToken);
+
+        return result.Status switch
+        {
+            AddIngredientToRecipeStatus.Success => Created($"/api/recipes/{recipeId}/ingredients/{result.Ingredient!.Id}", result.Ingredient),
+            AddIngredientToRecipeStatus.RecipeNotFound => NotFound(),
+            AddIngredientToRecipeStatus.IngredientNotFound => NotFound(),
+            AddIngredientToRecipeStatus.IngredientAlreadyAssigned => Conflict(),
+            _ => Problem()
+        };
+    }
+
     [HttpPost("{recipeId:long}/tags")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -107,4 +133,3 @@ public class RecipesController : ControllerBase
         };
     }
 }
-
