@@ -1,4 +1,3 @@
-using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
@@ -27,14 +26,13 @@ public sealed class CreateIngredientCommandHandler : IRequestHandler<CreateIngre
             return CreateIngredientResult.InvalidName();
         }
 
-        var normalizedName = request.Name.Trim();
-        var isTaken = await _ingredientRepository.IsNameTakenAsync(normalizedName, 0, cancellationToken);
+        var isTaken = await _ingredientRepository.IsNameTakenAsync(request.Name, 0, cancellationToken);
         if (isTaken)
         {
             return CreateIngredientResult.NameAlreadyExists();
         }
 
-        var ingredient = Ingredient.Create(normalizedName, request.PluralName?.Trim(), request.DefaultUnit);
+        var ingredient = Ingredient.Create(request.Name, request.PluralName, request.DefaultUnit);
         if (!request.IsActive)
         {
             ingredient.SetStatus(false);

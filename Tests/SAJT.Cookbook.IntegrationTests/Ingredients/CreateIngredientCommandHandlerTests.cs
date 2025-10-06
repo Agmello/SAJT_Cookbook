@@ -31,8 +31,9 @@ public sealed class CreateIngredientCommandHandlerTests
         Assert.NotNull(result.Ingredient);
 
         var stored = await context.Ingredients.SingleAsync();
-        Assert.Equal("Onion", stored.Name);
-        Assert.Equal("Onions", stored.PluralName);
+        Assert.Equal("onion", stored.Name);
+        Assert.Equal("onions", stored.PluralName);
         Assert.True(stored.IsActive);
     }
 }
+

@@ -40,18 +40,20 @@ public sealed class Ingredient
 
     public static Ingredient Create(string name, string? pluralName = null, MeasurementUnit? defaultUnit = null)
     {
-        ValidateName(name);
+        var normalizedName = NormalizeRequiredName(name, nameof(name));
+        var normalizedPluralName = NormalizeOptionalName(pluralName, nameof(pluralName));
 
-        var ingredient = new Ingredient(name.Trim(), pluralName?.Trim(), defaultUnit);
+        var ingredient = new Ingredient(normalizedName, normalizedPluralName, defaultUnit);
         return ingredient;
     }
 
     public void Rename(string name, string? pluralName = null)
     {
-        ValidateName(name);
+        var normalizedName = NormalizeRequiredName(name, nameof(name));
+        var normalizedPluralName = NormalizeOptionalName(pluralName, nameof(pluralName));
 
-        Name = name.Trim();
-        PluralName = pluralName?.Trim();
+        Name = normalizedName;
+        PluralName = normalizedPluralName;
         Touch();
     }
 
@@ -72,17 +74,38 @@ public sealed class Ingredient
         Touch();
     }
 
-    private static void ValidateName(string name)
+    private static string NormalizeRequiredName(string value, string parameterName)
     {
-        if (string.IsNullOrWhiteSpace(name))
+        if (string.IsNullOrWhiteSpace(value))
         {
-            throw new ArgumentException("Name cannot be empty.", nameof(name));
+            throw new ArgumentException("Name cannot be empty.", parameterName);
         }
 
-        if (name.Length > 150)
+        var normalized = value.Trim().ToLowerInvariant();
+
+        if (normalized.Length > 150)
         {
-            throw new ArgumentException("Name cannot exceed 150 characters.", nameof(name));
+            throw new ArgumentException("Name cannot exceed 150 characters.", parameterName);
         }
+
+        return normalized;
+    }
+
+    private static string? NormalizeOptionalName(string? value, string parameterName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var normalized = value.Trim().ToLowerInvariant();
+
+        if (normalized.Length > 150)
+        {
+            throw new ArgumentException("Name cannot exceed 150 characters.", parameterName);
+        }
+
+        return normalized;
     }
 
     private void Touch()

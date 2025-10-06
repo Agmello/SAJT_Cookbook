@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using MediatR;
 using SAJT.Cookbook.Application.Abstractions.Data;
@@ -33,15 +33,13 @@ public sealed class RenameIngredientCommandHandler : IRequestHandler<RenameIngre
             return RenameIngredientResult.NotFound();
         }
 
-        var normalizedName = request.Name.Trim();
-
-        var isNameTaken = await _ingredientRepository.IsNameTakenAsync(normalizedName, ingredient.Id, cancellationToken);
+        var isNameTaken = await _ingredientRepository.IsNameTakenAsync(request.Name, ingredient.Id, cancellationToken);
         if (isNameTaken)
         {
             return RenameIngredientResult.NameAlreadyExists();
         }
 
-        ingredient.Rename(normalizedName, request.PluralName?.Trim());
+        ingredient.Rename(request.Name, request.PluralName);
 
         _ingredientRepository.Update(ingredient);
         await _unitOfWork.SaveChangesAsync(cancellationToken);

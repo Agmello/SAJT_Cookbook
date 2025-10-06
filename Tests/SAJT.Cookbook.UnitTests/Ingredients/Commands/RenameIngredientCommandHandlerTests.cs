@@ -1,4 +1,4 @@
-﻿using System.Threading;
+using System.Threading;
 using System.Threading.Tasks;
 using Moq;
 using SAJT.Cookbook.Application.Abstractions.Data;
@@ -63,7 +63,7 @@ public sealed class RenameIngredientCommandHandlerTests
             .ReturnsAsync(ingredient);
 
         _ingredientRepositoryMock
-            .Setup(repo => repo.IsNameTakenAsync(command.Name.Trim(), ingredientId, It.IsAny<CancellationToken>()))
+            .Setup(repo => repo.IsNameTakenAsync(command.Name, ingredientId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
         var result = await _handler.Handle(command, CancellationToken.None);
@@ -85,7 +85,7 @@ public sealed class RenameIngredientCommandHandlerTests
             .ReturnsAsync(ingredient);
 
         _ingredientRepositoryMock
-            .Setup(repo => repo.IsNameTakenAsync("Whole Milk", ingredientId, It.IsAny<CancellationToken>()))
+            .Setup(repo => repo.IsNameTakenAsync(command.Name, ingredientId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
         _unitOfWorkMock
@@ -95,8 +95,8 @@ public sealed class RenameIngredientCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Equal(RenameIngredientStatus.Success, result.Status);
-        Assert.Equal("Whole Milk", ingredient.Name);
-        Assert.Equal("Whole Milks", ingredient.PluralName);
+        Assert.Equal("whole milk", ingredient.Name);
+        Assert.Equal("whole milks", ingredient.PluralName);
 
         _ingredientRepositoryMock.Verify(repo => repo.Update(ingredient), Times.Once);
         _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
@@ -109,3 +109,4 @@ public sealed class RenameIngredientCommandHandlerTests
             .SetValue(ingredient, id);
     }
 }
+

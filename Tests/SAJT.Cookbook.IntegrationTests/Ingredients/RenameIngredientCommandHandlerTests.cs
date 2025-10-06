@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using SAJT.Cookbook.Application.Ingredients.Commands.RenameIngredient;
@@ -31,8 +31,8 @@ public sealed class RenameIngredientCommandHandlerTests
         Assert.Equal(RenameIngredientStatus.Success, result.Status);
 
         var refreshed = await context.Ingredients.AsNoTracking().SingleAsync(x => x.Id == ingredient.Id);
-        Assert.Equal("Brown Sugar", refreshed.Name);
-        Assert.Equal("Brown Sugars", refreshed.PluralName);
+        Assert.Equal("brown sugar", refreshed.Name);
+        Assert.Equal("brown sugars", refreshed.PluralName);
     }
 
     [Fact]
@@ -64,3 +64,4 @@ public sealed class RenameIngredientCommandHandlerTests
         return new RenameIngredientCommandHandler(ingredientRepository, unitOfWork);
     }
 }
+

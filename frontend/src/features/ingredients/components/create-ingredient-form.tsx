@@ -68,9 +68,12 @@ export function CreateIngredientForm() {
     setSubmissionSuccess(null);
 
     try {
+      const normalizedName = values.name.trim().toLowerCase();
+      const normalizedPluralName = values.pluralName ? values.pluralName.trim().toLowerCase() : undefined;
+
       await mutateAsync({
-        name: values.name.trim(),
-        pluralName: values.pluralName,
+        name: normalizedName,
+        pluralName: normalizedPluralName,
         defaultUnit: values.defaultUnit ?? null,
         isActive: values.isActive,
       });
@@ -176,3 +179,5 @@ export function CreateIngredientForm() {
     </Form>
   );
 }
+
+

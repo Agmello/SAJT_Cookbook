@@ -65,10 +65,13 @@ public sealed class CreateIngredientCommandHandlerTests
         Assert.Equal(CreateIngredientStatus.Success, result.Status);
         Assert.NotNull(result.Ingredient);
         Assert.NotNull(addedIngredient);
-        Assert.Equal("Tomato", addedIngredient!.Name);
+        Assert.Equal("tomato", addedIngredient!.Name);
+        Assert.Equal("tomatoes", addedIngredient!.PluralName);
+        Assert.Equal("tomato", result.Ingredient!.Name);
         Assert.False(addedIngredient.IsActive);
 
         _ingredientRepositoryMock.Verify(repo => repo.Add(It.IsAny<Ingredient>()), Times.Once);
         _unitOfWorkMock.Verify(uow => uow.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 }
+

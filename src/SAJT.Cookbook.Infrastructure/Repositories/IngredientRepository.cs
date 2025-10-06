@@ -36,11 +36,13 @@ public class IngredientRepository : IIngredientRepository
         _dbContext.Ingredients.Add(ingredient);
     }
 
-
     public async Task<bool> IsNameTakenAsync(string name, long excludeId, CancellationToken cancellationToken = default)
     {
+        var normalized = name.Trim().ToLowerInvariant();
+
         return await _dbContext.Ingredients
-            .AnyAsync(ingredient => ingredient.Id != excludeId && ingredient.Name == name, cancellationToken);
+            .AsNoTracking()
+            .AnyAsync(ingredient => ingredient.Id != excludeId && ingredient.Name == normalized, cancellationToken);
     }
 
     public void Update(Ingredient ingredient)
@@ -48,5 +50,3 @@ public class IngredientRepository : IIngredientRepository
         _dbContext.Ingredients.Update(ingredient);
     }
 }
-
-
