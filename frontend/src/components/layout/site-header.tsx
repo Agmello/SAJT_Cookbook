@@ -47,6 +47,9 @@ export function SiteHeader() {
               <span className="ml-1 text-muted-foreground">(switch)</span>
             </Button>
           ) : null}
+          <Button asChild size="sm" variant="secondary">
+            <Link href="/dashboard/ingredients/new">Add ingredient</Link>
+          </Button>
           <Button asChild size="sm" variant="default">
             <Link href="/dashboard/recipes/new">Add recipe</Link>
           </Button>
