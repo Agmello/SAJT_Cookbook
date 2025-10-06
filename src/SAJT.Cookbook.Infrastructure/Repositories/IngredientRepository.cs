@@ -31,6 +31,12 @@ public class IngredientRepository : IIngredientRepository
             .ToListAsync(cancellationToken);
     }
 
+    public void Add(Ingredient ingredient)
+    {
+        _dbContext.Ingredients.Add(ingredient);
+    }
+
+
     public async Task<bool> IsNameTakenAsync(string name, long excludeId, CancellationToken cancellationToken = default)
     {
         return await _dbContext.Ingredients
@@ -42,4 +48,5 @@ public class IngredientRepository : IIngredientRepository
         _dbContext.Ingredients.Update(ingredient);
     }
 }
+
 

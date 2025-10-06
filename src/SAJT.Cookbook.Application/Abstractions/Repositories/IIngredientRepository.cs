@@ -11,7 +11,10 @@ public interface IIngredientRepository
 
     Task<IReadOnlyList<Ingredient>> ListAsync(CancellationToken cancellationToken = default);
 
+    void Add(Ingredient ingredient);
+
     Task<bool> IsNameTakenAsync(string name, long excludeId, CancellationToken cancellationToken = default);
 
     void Update(Ingredient ingredient);
 }
+
