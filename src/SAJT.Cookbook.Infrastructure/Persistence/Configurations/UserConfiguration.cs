@@ -19,6 +19,9 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .IsRequired()
             .HasMaxLength(200);
 
+        builder.HasIndex(user => user.Name)
+            .IsUnique();
+
         builder.Property(user => user.CreatedAtUtc)
             .HasColumnType("datetime2")
             .IsRequired();

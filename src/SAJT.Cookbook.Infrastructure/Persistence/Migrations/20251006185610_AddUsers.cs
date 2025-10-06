@@ -25,6 +25,12 @@ namespace SAJT.Cookbook.Infrastructure.Persistence.Migrations
                     table.PrimaryKey("PK_Users", x => x.Id);
                 });
 
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_Name",
+                table: "Users",
+                column: "Name",
+                unique: true);
+
             migrationBuilder.Sql(@"INSERT INTO [Users] ([Id], [Name], [CreatedAtUtc], [UpdatedAtUtc])
 SELECT DISTINCT r.[AuthorId], CONVERT(NVARCHAR(200), CONCAT('Legacy Author ', RIGHT(CONVERT(NVARCHAR(36), r.[AuthorId]), 8))), SYSUTCDATETIME(), SYSUTCDATETIME()
 FROM [Recipes] r

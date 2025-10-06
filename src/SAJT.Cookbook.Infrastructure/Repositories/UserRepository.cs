@@ -36,4 +36,12 @@ public class UserRepository : IUserRepository
             .OrderBy(user => user.Name)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<bool> IsNameTakenAsync(string name, CancellationToken cancellationToken = default)
+    {
+        var normalized = name.Trim();
+        return await _dbContext.Users
+            .AsNoTracking()
+            .AnyAsync(user => user.Name == normalized, cancellationToken);
+    }
 }

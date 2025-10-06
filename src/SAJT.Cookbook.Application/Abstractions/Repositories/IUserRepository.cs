@@ -12,6 +12,9 @@ public interface IUserRepository
 
     Task<IReadOnlyList<User>> ListAsync(CancellationToken cancellationToken = default);
 
+    Task<bool> IsNameTakenAsync(string name, CancellationToken cancellationToken = default);
+
     void Add(User user);
 }
+
 
