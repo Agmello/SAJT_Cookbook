@@ -64,6 +64,12 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
         <span>Updated {updatedAtLabel}</span>
         <div className="flex items-center gap-3">
           <Link
+            href={`/recipes/${recipe.id}`}
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            View details
+          </Link>
+          <Link
             href={`/dashboard/recipes/${recipe.id}/ingredients`}
             className="text-sm font-medium text-primary hover:underline"
           >
@@ -74,9 +80,4 @@ export function RecipeCard({ recipe }: RecipeCardProps) {
     </Card>
   );
 }
-
-
-
-
-
 

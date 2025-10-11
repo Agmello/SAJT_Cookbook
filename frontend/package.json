@@ -7,6 +7,7 @@
         "build": "next build",
         "start": "next start",
         "start0000": "next start --hostname 0.0.0.0 --port 3000",
+        "startlocal": "next start --hostname localhost --port 3000",
         "lint": "eslint . --max-warnings=0"
     },
     "dependencies": {

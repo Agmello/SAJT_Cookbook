@@ -29,3 +29,26 @@ export interface RecipeSummary {
   updatedAtUtc: string;
 }
 
+export interface RecipeStep {
+  id: number;
+  stepNumber: number;
+  instruction: string;
+  durationMinutes: number | null;
+  mediaUrl: string | null;
+}
+
+export interface RecipeTagSummary {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface RecipeDetails extends RecipeSummary {
+  slug: string;
+  authorId: string;
+  authorName?: string | null;
+  createdAtUtc: string;
+  ingredients: RecipeIngredientSummary[];
+  steps: RecipeStep[];
+  tags: RecipeTagSummary[];
+}

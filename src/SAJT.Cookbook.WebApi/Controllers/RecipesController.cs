@@ -9,6 +9,7 @@ using SAJT.Cookbook.Application.Recipes.Commands.AddTagToRecipe;
 using SAJT.Cookbook.Application.Recipes.Commands.CreateRecipe;
 using SAJT.Cookbook.Application.Recipes.Commands.RemoveTagFromRecipe;
 using SAJT.Cookbook.Application.Recipes.Models;
+using SAJT.Cookbook.Application.Recipes.Queries.GetRecipeById;
 using SAJT.Cookbook.Application.Recipes.Queries.GetRecipes;
 using SAJT.Cookbook.WebApi.Requests.Recipes;
 
@@ -32,6 +33,21 @@ public class RecipesController : ControllerBase
         var recipes = await _mediator.Send(new GetRecipesQuery(), cancellationToken);
 
         return Ok(recipes);
+    }
+
+    [HttpGet("{recipeId:long}")]
+    [ProducesResponseType(typeof(RecipeDetailsDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<RecipeDetailsDto>> GetByIdAsync(long recipeId, CancellationToken cancellationToken)
+    {
+        var recipe = await _mediator.Send(new GetRecipeByIdQuery(recipeId), cancellationToken);
+
+        if (recipe is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(recipe);
     }
 
     [HttpPost]
@@ -133,3 +149,5 @@ public class RecipesController : ControllerBase
         };
     }
 }
+
+
